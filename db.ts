@@ -1,5 +1,6 @@
 // Mongo
 import mongodb = require('mongodb');
+import image = require('./image');
 
 var server = new mongodb.Server('localhost', 27017, {auto_reconnect: true})
 var db = new mongodb.Db('mydb', server, {w: 1});
@@ -39,7 +40,14 @@ export function addJob(inputUri:string, cb:(err, job?:Job) => void) {
       outputUri: inputUri
     }, (err, result) => {
       if (err) return cb(err);
-      cb(null, result.ops[0]);
+      const job = result.ops[0];
+
+      image.downloadFile(job.inputUri, () => {
+        console.log('image downloaded');
+        console.log('arguments', arguments);
+      });
+
+      cb(null, job);
     })
   })
 }
